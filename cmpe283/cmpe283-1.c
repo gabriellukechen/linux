@@ -98,6 +98,24 @@ struct capability_info secondary_procbased[27] =
 	{ 28, "Enable ENCLV exiting" },
 };
 
+struct capability_info vmexit[14] = 
+{
+	{ 2, "Save debug controls" },
+	{ 9, "Host address-space size" },
+	{ 12, "Load IA32_PERF_GLOBAL_ CTRL" },
+	{ 15, "Acknowledge interrupt on exit" },
+	{ 18, "Save IA32_PAT" },
+	{ 19, "Load IA32_PAT" },
+	{ 20, "Save IA32_EFER" },
+	{ 21, "Load IA32_EFER" },
+	{ 22, "Save VMXpreemption timer value" },
+	{ 23, "Clear IA32_BNDCFGS" },
+	{ 24, "Conceal VMX from PT" },
+	{ 25, "Clear IA32_RTIT_CTL" },
+	{ 28, "Load CET state" },
+	{ 29, "Load PKRS" },
+};
+
 /*
  * report_capability
  *
@@ -155,6 +173,11 @@ detect_vmx_features(void)
 	pr_info("Secondary Procbased Controls MSR: 0x%llx\n",
 		(uint64_t)(lo | (uint64_t)hi << 32));
     report_capability(secondary_procbased, 27, lo, hi);
+
+    rdmsr(IA32_VMX_EXIT_CTLS, lo, hi);
+	pr_info("VM Exit Controls MSR: 0x%llx\n",
+		(uint64_t)(lo | (uint64_t)hi << 32));
+    report_capability(vmexit, 14, lo, hi);
 }
 
 /*
