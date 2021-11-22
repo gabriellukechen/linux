@@ -20,3 +20,20 @@ $ chmod +x update-module.sh
 $ ./update-module.sh (makes, removes old version, inserts and starts new version)
 
 ```
+
+## Assignment 2 Steps
+question 2
+```
+# on every change to the cpuid.c and vmx.c code... 
+$ make -j [cpus] modules
+$ make -j [cpus] INSTALL_MOD_STRIP=1 modules_install
+$ rmmod kvm_intel
+$ rmmod kvm
+$ modprobe kvm
+$ lsmod | grep kvm
+$ modprobe kvm_intel
+$ lsmod | grep kvm_intel
+# start the vm (so actually this can be challenging but depends on your machine)
+#    for me I had to directly start it from qemu cli
+```
+modified cpuid.c and vmx.c to make implement handlers for 0x4fffffff 0x4ffffffe.

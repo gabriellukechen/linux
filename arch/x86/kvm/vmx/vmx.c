@@ -6080,7 +6080,21 @@ unexpected_vmexit:
 
 static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
-	int ret = __vmx_handle_exit(vcpu, exit_fastpath);
+    extern u64 total_cpu_time;
+    extern u32 total_exits;
+    int ret;
+
+    u64 bf_cpu_cycles;
+    u64 af_cpu_cycles;
+    
+    bf_cpu_cycles = rdtsc();
+
+	ret = __vmx_handle_exit(vcpu, exit_fastpath);
+
+    af_cpu_cycles = rdtsc();
+    total_cpu_time += af_cpu_cycles - bf_cpu_cycles;
+
+    total_exits++;
 
 	/*
 	 * Exit to user space when bus lock detected to inform that there is
