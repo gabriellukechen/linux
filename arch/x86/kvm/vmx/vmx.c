@@ -6082,18 +6082,31 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
     extern u64 total_cpu_time;
     extern u32 total_exits;
+    extern u32 total_exits_per_exit_number[70];
+    extern u64 total_exit_time_per_exit_number[70];
     int ret;
+	struct vcpu_vmx *vmx = to_vmx(vcpu);
+	union vmx_exit_reason exit_reason = vmx->exit_reason;
 
+    u64 delta;
+	u16 exit_handler_index;
     u64 bf_cpu_cycles;
     u64 af_cpu_cycles;
+
+	exit_handler_index = array_index_nospec((u16)exit_reason.basic,
+						kvm_vmx_max_exit_handlers);
+
     
     bf_cpu_cycles = rdtsc();
 
 	ret = __vmx_handle_exit(vcpu, exit_fastpath);
 
     af_cpu_cycles = rdtsc();
-    total_cpu_time += af_cpu_cycles - bf_cpu_cycles;
+    delta = af_cpu_cycles - bf_cpu_cycles;
+    total_cpu_time += delta;
 
+    total_exit_time_per_exit_number[exit_handler_index] += delta;
+    total_exits_per_exit_number[exit_handler_index]++;
     total_exits++;
 
 	/*

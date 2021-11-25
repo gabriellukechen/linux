@@ -25,6 +25,8 @@
 #include "trace.h"
 #include "pmu.h"
 
+#define NUM_EXITS 70
+
 /*
  * Unlike "struct cpuinfo_x86.x86_capability", kvm_cpu_caps doesn't need to be
  * aligned to sizeof(unsigned long) because it's not accessed via bitops.
@@ -1236,9 +1238,27 @@ EXPORT_SYMBOL(total_exits);
 u64 total_cpu_time;
 EXPORT_SYMBOL(total_cpu_time);
 
+u32 total_exits_per_exit_number[NUM_EXITS];
+EXPORT_SYMBOL(total_exits_per_exit_number);
+
+u64 total_exit_time_per_exit_number[NUM_EXITS];
+EXPORT_SYMBOL(total_exit_time_per_exit_number);
+
+bool handled_in_sdm(u32 exit_number) {
+    return exit_number != 35 && exit_number != 38 && exit_number != 42 &&
+        exit_number != 65 && exit_number > 0 && exit_number < 70;
+}
+
+bool handled_in_kvm(u32 exit_number) {
+    return exit_number != 5 && exit_number != 6 && exit_number != 11 &&
+        exit_number != 17 && exit_number != 17 && exit_number != 66 &&
+        exit_number != 69;
+}
+
 int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 {
 	u32 eax, ebx, ecx, edx;
+    u64 time;
 
 	if (cpuid_fault_enabled(vcpu) && !kvm_require_cpl(vcpu, 0))
 		return 1;
@@ -1253,6 +1273,34 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
         case 0x4FFFFFFE:
             ebx = total_cpu_time >> 32;
             ecx = total_cpu_time & 0xFFFFFFFF;
+            break;
+        case 0x4FFFFFFD:
+            if (!handled_in_sdm(ecx)) {
+                eax = ebx = ecx = 0;
+                edx = 0xFFFFFFFF;
+                break;
+            }
+            if (!handled_in_kvm(ecx)) {
+                eax = ebx = ecx = edx = 0;
+                break;
+            }
+
+            eax = total_exits_per_exit_number[ecx];
+            break;
+        case 0x4FFFFFFC:
+            if (!handled_in_sdm(ecx)) {
+                eax = ebx = ecx = 0;
+                edx = 0xFFFFFFFF;
+                break;
+            }
+            if (!handled_in_kvm(ecx)) {
+                eax = ebx = ecx = edx = 0;
+                break;
+            }
+
+            time = total_exit_time_per_exit_number[ecx];
+            ebx = time >> 32;
+            ecx = time & 0xFFFFFFFF;
             break;
         default:
 	        kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
