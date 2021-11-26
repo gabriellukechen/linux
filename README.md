@@ -43,7 +43,7 @@ $ lsmod | grep kvm_intel
 2. ran cronjob on reboot to see how many run on reboot 
 3. ran test scripts that write files to see how exits scale over time, etc.
 4. ran test script that prints out all the 70 exits into files
-5. copied these values into spread sheets, raw files can be seen in .txt files in the cmpe283 folder
+5. copied these values into spread sheets, raw files can be seen in .txt files in the cmpe283 folder, or link here for spreadsheets [Spreadsheet With Data](https://docs.google.com/spreadsheets/d/1ZcBz_bjucJJRUOgbGrvx7h-zg37OAs8uTrHmPlRxE5E/edit?usp=sharing)
 
 ## Assignment 3 Questions
 ### Question 3
