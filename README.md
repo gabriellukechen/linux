@@ -70,3 +70,17 @@ Approximately 10554565
 ### Question 4
 Most and Least Frequent?
 The most frequent exits are for I/O operations (exit reason 30). Other frequent ones included EPT Violation 48, and WRMSR 32. CPUID was also high but that's because it was called many times for the same of this experiment. There were also many exit reasons that were never recorded because there were no occurences. Exit reasons that occurred very few times but still were recorded were 54 WBINVD and 29 MOV DR, both occurring only 63 and 14 times respectively over a period of a few minutes.
+
+## Assignment 4 Questions
+### Question 1
+Worked on this assignment myself.
+
+### Question 2
+See linux/cmpe282/wwoept for samples of output from tests. Also see [Spreadsheet With Data](https://docs.google.com/spreadsheets/d/1ZcBz_bjucJJRUOgbGrvx7h-zg37OAs8uTrHmPlRxE5E/edit#gid=2059977300) 
+
+### Question 3
+There were many more exits in the no ept output (shadow paging). This was expected because with shadow paging, there isn't the advantage of being able to perform page table walk as with nested paging. Shadow paging requires many more exits for the VMM to handle, which is expensive in terms of efficiency/runtime.
+
+### Question 4
+With ept=0 (nested paging off), boot up was extremely slow on the inner VM. On my machine, it took up to 30 minutes. There were also a few exits that were visible in the noept exits, such as exit reason 14(INVPLG), and 33(vm-entry failure due to invalid guest state).
+
